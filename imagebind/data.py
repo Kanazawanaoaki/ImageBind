@@ -75,12 +75,20 @@ def get_clip_timepoints(clip_sampler, duration):
     return all_clips_timepoints
 
 
-def load_and_transform_vision_data(image_paths, device):
+def load_and_transform_vision_data(image_paths, device, images=None):
     if image_paths is None:
-        return None
+        if images is None:
+            return None
+    else:
+        images = []
+        for image_path in image_paths:
+            with open(image_path, "rb") as fopen:
+                image = Image.open(fopen).convert("RGB")
+            images.append(image)
+            print(image_path)
 
     image_outputs = []
-    for image_path in image_paths:
+    for image in images:
         data_transform = transforms.Compose(
             [
                 transforms.Resize(
@@ -94,8 +102,6 @@ def load_and_transform_vision_data(image_paths, device):
                 ),
             ]
         )
-        with open(image_path, "rb") as fopen:
-            image = Image.open(fopen).convert("RGB")
 
         image = data_transform(image).to(device)
         image_outputs.append(image)
