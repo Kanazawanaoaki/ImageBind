@@ -85,7 +85,6 @@ def load_and_transform_vision_data(image_paths, device, images=None):
             with open(image_path, "rb") as fopen:
                 image = Image.open(fopen).convert("RGB")
             images.append(image)
-            print(image_path)
 
     image_outputs = []
     for image in images:
@@ -107,6 +106,32 @@ def load_and_transform_vision_data(image_paths, device, images=None):
         image_outputs.append(image)
     return torch.stack(image_outputs, dim=0)
 
+
+def load_and_transform_thermal_data(thermal_paths, device):
+    # copy from https://github.com/facebookresearch/ImageBind/issues/37
+    if image_paths is None:
+        return None
+
+    thermal_ouputs = []
+    for thermal_path in thermal_paths:
+        data_transform = transforms.Compose(
+            [
+                transforms.Resize(
+                    224, interpolation=transforms.InterpolationMode.BICUBIC
+                ),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+#                 transforms.Normalize(
+#                     mean=(0.5),
+#                     std=(0.5),
+#                 ),
+            ]
+        )
+        with open(thermal_path, "rb") as fopen:
+            thermal = Image.open(fopen).convert("L")
+        thermal = data_transform(thermal).to(device)
+        thermal_ouputs.append(thermal)
+    return torch.stack(thermal_ouputs, dim=0)
 
 def load_and_transform_text(text, device):
     if text is None:
