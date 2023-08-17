@@ -109,7 +109,7 @@ def load_and_transform_vision_data(image_paths, device, images=None):
 
 def load_and_transform_thermal_data(thermal_paths, device):
     # copy from https://github.com/facebookresearch/ImageBind/issues/37
-    if image_paths is None:
+    if thermal_paths is None:
         return None
 
     thermal_ouputs = []
