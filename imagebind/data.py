@@ -319,9 +319,21 @@ def load_and_transform_video_data(
     clip_duration=2,
     clips_per_video=5,
     sample_rate=16000,
+    videos=None
 ):
     if video_paths is None:
-        return None
+        if videos is None:
+            return None
+    else:
+        videos = []
+        for video_path in video_paths:
+            video = EncodedVideo.from_path(
+                video_path,
+                decoder="decord",
+                decode_audio=False,
+                **{"sample_rate": sample_rate},
+            )
+            videos.append(video)
 
     video_outputs = []
     video_transform = transforms.Compose(
@@ -339,14 +351,7 @@ def load_and_transform_video_data(
     )
     frame_sampler = pv_transforms.UniformTemporalSubsample(num_samples=clip_duration)
 
-    for video_path in video_paths:
-        video = EncodedVideo.from_path(
-            video_path,
-            decoder="decord",
-            decode_audio=False,
-            **{"sample_rate": sample_rate},
-        )
-
+    for video in videos:
         all_clips_timepoints = get_clip_timepoints(clip_sampler, video.duration)
 
         all_video = []
