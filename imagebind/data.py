@@ -155,17 +155,25 @@ def load_and_transform_audio_data(
     clips_per_video=3,
     mean=-4.268,
     std=9.138,
+    audios=None,
 ):
     if audio_paths is None:
-        return None
+        if audios is None:
+            return None
+    else:
+        audios = []
+        for audio_path in audio_paths:
+            waveform, sr = torchaudio.load(audio_path)
+            audios.append({"waveform": waveform, "sr": sr})
 
     audio_outputs = []
     clip_sampler = ConstantClipsPerVideoSampler(
         clip_duration=clip_duration, clips_per_video=clips_per_video
     )
 
-    for audio_path in audio_paths:
-        waveform, sr = torchaudio.load(audio_path)
+    for audio in audios:
+        waveform = audio["waveform"]
+        sr = audio["sr"]
         if sample_rate != sr:
             waveform = torchaudio.functional.resample(
                 waveform, orig_freq=sr, new_freq=sample_rate
